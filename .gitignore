@@ -1,0 +1,9 @@
+# nix 构建产物软链
+result
+result-*
+# 本地环境
+.direnv/
+.envrc
+# 编辑器
+*.swp
+*~
