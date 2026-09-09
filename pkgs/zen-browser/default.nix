@@ -28,7 +28,38 @@
   vulkan-loader,
   pciutils,
   libkrb5,
+  speechd-minimal,
+  cups,
 }:
+let
+  # 运行时 dlopen 的媒体/辅助库集, 通过 makeWrapper 注入 LD_LIBRARY_PATH 提供。
+  #
+  # 背景: Zen 1.21.16b (新版 Firefox 基座) 已移除 GStreamer 后端, 视频/音频解码
+  # 改为运行时 dlopen 系统 FFmpeg (FFmpegLinkage 探测 libavcodec.so.53~63)。
+  # 若这些库不在进程的 RPATH/LD_LIBRARY_PATH 中, dlopen 失败 -> canPlayType()
+  # 对 H.264/AAC 返回空 -> 网课平台误报"请安装 Flash"。此前 Nix 版曾因缺 ffmpeg
+  # 触发该问题, 经 steam-run 跑 Downloads 版却正常, 即因 FHS 环境自带这些库。
+  #
+  # 参考 nixpkgs firefox 的 wrapper.nix 的 libs 集。注意:
+  #   - ffmpeg 是 split output, 真库在 .lib (libavcodec.so.61 / libavutil.so.59 / libswresample.so.5)
+  #   - udev 在 nixpkgs 由 systemd-minimal-libs 提供
+  #   - speechd-minimal 供 SpeechSynthesis API (缺失会报 "Speech Dispatcher required")
+  mediaLibs = [
+    ffmpeg_7.lib # H.264/AAC/MP3 等视频音频编解码 (libavcodec/libavutil/libswresample)
+    udev # 设备管理, Firefox 通过它感知硬件(via systemd-minimal-libs)
+    libgbm # GBM 图形缓冲分配, VA-API/硬解与合成器交互依赖
+    libnotify # 桌面通知 (网页通知/下载完成提示)
+    libxscrnsaver # X11 屏幕保护抑制 (全屏/播放时防熄屏)
+    libpulseaudio # PulseAudio 音频输出后端 (无它声音走 pipewire 之外的回退路径需它)
+    libcanberra-gtk3 # GTK 事件音效 (libcanberra), 通知/交互提示音需要
+    libglvnd # GL Vendor 分发器, 链接核心 GL 入口 (mesa/nvidia 统一入口)
+    vulkan-loader # Vulkan loader, WebGL/Canvas 走 Vulkan 后端时依赖
+    pciutils # PCI 设备查询 (硬解/GPU 能力探测)
+    libkrb5 # Kerberos 支持 (gssSupport, 企业认证/单点登录)
+    speechd-minimal # SpeechSynthesis API 语音合成 (缺失报 "Speech Dispatcher required")
+    cups # CUPS 打印支持 (打印/打印机探测时需 libcups)
+  ];
+in
 stdenv.mkDerivation (finalAttrs: {
   pname = "zen-browser";
   version = "1.21.16b";
@@ -82,7 +113,7 @@ stdenv.mkDerivation (finalAttrs: {
       --unset GIO_EXTRA_MODULES \
       --set MOZ_LEGACY_PROFILES 1 \
       --set MOZ_ALLOW_DOWNGRADE 1 \
-      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ ffmpeg_7.lib udev libgbm libnotify libxscrnsaver libpulseaudio libcanberra-gtk3 libglvnd vulkan-loader pciutils libkrb5 ]}"
+      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath mediaLibs}"
 
     install -dm755 $out/lib/${finalAttrs.pname}-${finalAttrs.version}/distribution
     cat > $out/lib/${finalAttrs.pname}-${finalAttrs.version}/distribution/policies.json <<'JSON'
