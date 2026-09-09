@@ -17,6 +17,17 @@
   glib,
   gsettings-desktop-schemas,
   librsvg,
+  ffmpeg_7,
+  udev,
+  libgbm,
+  libnotify,
+  libxscrnsaver,
+  libpulseaudio,
+  libcanberra-gtk3,
+  libglvnd,
+  vulkan-loader,
+  pciutils,
+  libkrb5,
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "zen-browser";
@@ -69,7 +80,9 @@ stdenv.mkDerivation (finalAttrs: {
       --prefix XDG_DATA_DIRS : "${glib}/share" \
       --set GDK_PIXBUF_MODULE_FILE "${librsvg}/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache" \
       --unset GIO_EXTRA_MODULES \
-      --set MOZ_LEGACY_PROFILES 1
+      --set MOZ_LEGACY_PROFILES 1 \
+      --set MOZ_ALLOW_DOWNGRADE 1 \
+      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ ffmpeg_7.lib udev libgbm libnotify libxscrnsaver libpulseaudio libcanberra-gtk3 libglvnd vulkan-loader pciutils libkrb5 ]}"
 
     install -dm755 $out/lib/${finalAttrs.pname}-${finalAttrs.version}/distribution
     cat > $out/lib/${finalAttrs.pname}-${finalAttrs.version}/distribution/policies.json <<'JSON'
