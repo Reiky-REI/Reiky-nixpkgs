@@ -15,6 +15,8 @@
   libva,
   pipewire,
   glib,
+  gsettings-desktop-schemas,
+  librsvg,
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "zen-browser";
@@ -62,7 +64,10 @@ stdenv.mkDerivation (finalAttrs: {
 
     install -dm755 $out/bin
     makeWrapper $out/lib/${finalAttrs.pname}-${finalAttrs.version}/zen $out/bin/zen \
-      --prefix XDG_DATA_DIRS : "${glib}/share"
+      --prefix XDG_DATA_DIRS : "${gsettings-desktop-schemas}/share/gsettings-schemas/${gsettings-desktop-schemas.name}" \
+      --prefix XDG_DATA_DIRS : "${gtk3}/share/gsettings-schemas/${gtk3.name}" \
+      --prefix XDG_DATA_DIRS : "${glib}/share" \
+      --set GDK_PIXBUF_MODULE_FILE "${librsvg}/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache"
 
     install -dm755 $out/lib/${finalAttrs.pname}-${finalAttrs.version}/distribution
     cat > $out/lib/${finalAttrs.pname}-${finalAttrs.version}/distribution/policies.json <<'JSON'
