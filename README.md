@@ -76,6 +76,22 @@ nix flake check                  # 触发包求值
    （或用 `nix-prefetch-url --unpack <url>` 拿 sha256 再 `nix hash to-sri`。）
 4. `nix build .#zen-browser` 通过即完成。
 
+### ⚠️ 版本升级后：重注册 Zen profile（NixOS 侧）
+
+Zen/Firefox 的 Wayland「install-id」是其**二进制 store 路径的哈希**。版本升级 → store 路径变 → install-id 变 → 首次启动时 Zen 会**无视 `~/.zen/profiles.ini` 的 `Default=1`，另建一个空 profile**，导致看起来「书签没了」（数据其实还在旧 profile 里）。
+
+手动重注册（把带书签的 profile 绑回新 install-id）：
+
+```bash
+# 1) 启动一次 zen 让它生成新的 install-id（读 installs.ini 里的新条目）
+zen --new-window about:blank & sleep 6; kill %1
+# 2) 记下 installs.ini 里新的 [Install<NEWID>]
+# 3) 把 profiles.ini 与 installs.ini 的该 install 指向带书签的 profile 目录，删掉新建的空 profile
+```
+
+更省事的做法：升级后首启在 Zen 的「从 Firefox 导入数据」向导里重新导入一次即可。
+
+
 ## 未来 CI/CD 预留
 
 `flake.nix` 已导出 `hydraJobs = packages`，可直接被 Hydra / GitHub Actions 复用。建议后续：
