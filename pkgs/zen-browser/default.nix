@@ -4,9 +4,9 @@
   fetchurl,
   makeDesktopItem,
   copyDesktopItems,
-  wrapGAppsHook3,
   autoPatchelfHook,
   patchelfUnstable,
+  makeWrapper,
   gtk3,
   adwaita-icon-theme,
   alsa-lib,
@@ -14,6 +14,7 @@
   libxtst,
   libva,
   pipewire,
+  glib,
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "zen-browser";
@@ -27,9 +28,9 @@ stdenv.mkDerivation (finalAttrs: {
   sourceRoot = "zen";
 
   nativeBuildInputs = [
-    wrapGAppsHook3
     autoPatchelfHook
     patchelfUnstable
+    makeWrapper
     copyDesktopItems
   ];
 
@@ -49,10 +50,9 @@ stdenv.mkDerivation (finalAttrs: {
     "${pipewire}/lib"
   ];
 
-  # Firefox/Gecko 用 relrhack 手动处理重定位, patchelf 不能覆盖旧 section
   patchelfFlags = [ "--no-clobber-old-sections" ];
 
-  # wrapGAppsHook3 会自动包装所有可执行文件, 不需要额外 makeWrapper
+  dontWrapGApps = true;
 
   installPhase = ''
     runHook preInstall
@@ -61,9 +61,9 @@ stdenv.mkDerivation (finalAttrs: {
     cp -r * $out/lib/${finalAttrs.pname}-${finalAttrs.version}
 
     install -dm755 $out/bin
-    ln -s $out/lib/${finalAttrs.pname}-${finalAttrs.version}/zen $out/bin/zen
+    makeWrapper $out/lib/${finalAttrs.pname}-${finalAttrs.version}/zen $out/bin/zen \
+      --prefix XDG_DATA_DIRS : "${glib}/share"
 
-    # 禁用自动更新 (Nix store 只读)
     install -dm755 $out/lib/${finalAttrs.pname}-${finalAttrs.version}/distribution
     cat > $out/lib/${finalAttrs.pname}-${finalAttrs.version}/distribution/policies.json <<'JSON'
 {
@@ -73,7 +73,6 @@ stdenv.mkDerivation (finalAttrs: {
 }
 JSON
 
-    # 图标
     install -Dm644 $out/lib/${finalAttrs.pname}-${finalAttrs.version}/browser/chrome/icons/default/default128.png \
       $out/share/icons/hicolor/128x128/apps/zen.png
 
@@ -102,7 +101,7 @@ JSON
   ];
 
   meta = with lib; {
-    description = "Zen Browser - 基于 Firefox 的隐私向浏览器 (官方二进制, autoPatchelf + wrapGApps)";
+    description = "Zen Browser - 基于 Firefox 的隐私向浏览器 (官方二进制, autoPatchelf + makeWrapper)";
     homepage = "https://zen-browser.app/";
     downloadPage = "https://github.com/zen-browser/desktop/releases";
     license = licenses.mpl20;
