@@ -13,9 +13,11 @@ Reiky-nixpkgs/
 ├── pkgs/
 │   ├── zen-browser/
 │   │   └── default.nix       # Zen Browser（Firefox 分支）官方通用二进制打包
-│   └── dsh/
-│       ├── default.nix       # DeepSeek Harness CLI（npm tarball + 生成 lock）
-│       └── package-lock.json # 针对 0.1.1-rc.2 生成的依赖树（上游 tarball 不带 lock）
+│   ├── dsh/
+│   │   ├── default.nix       # DeepSeek Harness CLI（npm tarball + 生成 lock）
+│   │   └── package-lock.json # 针对 0.1.1-rc.2 生成的依赖树（上游 tarball 不带 lock）
+│   └── opencode-v2/
+│       └── default.nix       # OpenCode v2 CLI（npm 平台包预编译原生二进制）
 └── README.md
 ```
 
@@ -25,6 +27,12 @@ Reiky-nixpkgs/
 |------|------|-------------|
 | `zen-browser` | [Zen Browser](https://zen-browser.app/)，基于 Firefox 的隐私向浏览器 | nixpkgs（26.05 与 unstable）`browsers/` 目录均未收录；上游以通用 Linux tarball 分发 |
 | `dsh` | [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) CLI，终端 AI agent harness | nixpkgs 未收录（0.1.x 仍为 rc）；且此前以 `npm install` 装在家目录，属非声明式 |
+| `opencode-v2` | [OpenCode](https://opencode.ai) v2 CLI，AI 编码 agent | nixpkgs 仅收录 v1（1.18.x），尚无 v2 打包；上游 v2 以 npm 平台包分发预编译二进制 |
+
+> `opencode-v2` 打包注意：bun compile 的单文件二进制**不能** `autoPatchelfHook`/`strip`
+> （会破坏追加在 ELF 尾部的应用负载，二进制退化成裸 Bun，`--version` 打印 Bun 版本）。
+> 已设 `dontPatchELF`/`dontStrip`；另 v2 的 `serve` 强制密码鉴权，与 v1 无鉴权的
+> server API 契约不同。
 
 > `dsh` 固定 **0.1.1-rc.2**：更新版 `0.1.5-rc.2` 依赖的
 > `@deepseek-ai/dsh-experimental-code-runtime-python` 在 npm 上从未发布（registry 404），
