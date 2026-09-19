@@ -26,6 +26,7 @@
         final: prev:
         {
           zen-browser = final.callPackage ./pkgs/zen-browser { };
+          dsh = final.callPackage ./pkgs/dsh { };
         };
 
       # 便于单包直接构建 / CI 冒烟测试: nix build .#zen-browser
@@ -36,6 +37,7 @@
         in
         {
           zen-browser = pkgs.callPackage ./pkgs/zen-browser { };
+          dsh = pkgs.callPackage ./pkgs/dsh { };
           default = pkgs.callPackage ./pkgs/zen-browser { };
         }
       );

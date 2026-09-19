@@ -11,8 +11,11 @@ Reiky 的个人 Nix 私源包集合，以 **flake overlay** 形式对外提供�
 Reiky-nixpkgs/
 ├── flake.nix                 # 对外接口：overlays.default + packages.<system>
 ├── pkgs/
-│   └── zen-browser/
-│       └── default.nix       # Zen Browser（Firefox 分支）官方通用二进制打包
+│   ├── zen-browser/
+│   │   └── default.nix       # Zen Browser（Firefox 分支）官方通用二进制打包
+│   └── dsh/
+│       ├── default.nix       # DeepSeek Harness CLI（npm tarball + 生成 lock）
+│       └── package-lock.json # 针对 0.1.1-rc.2 生成的依赖树（上游 tarball 不带 lock）
 └── README.md
 ```
 
@@ -21,6 +24,11 @@ Reiky-nixpkgs/
 | 包名 | 说明 | 为何本地打包 |
 |------|------|-------------|
 | `zen-browser` | [Zen Browser](https://zen-browser.app/)，基于 Firefox 的隐私向浏览器 | nixpkgs（26.05 与 unstable）`browsers/` 目录均未收录；上游以通用 Linux tarball 分发 |
+| `dsh` | [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) CLI，终端 AI agent harness | nixpkgs 未收录（0.1.x 仍为 rc）；且此前以 `npm install` 装在家目录，属非声明式 |
+
+> `dsh` 固定 **0.1.1-rc.2**：更新版 `0.1.5-rc.2` 依赖的
+> `@deepseek-ai/dsh-experimental-code-runtime-python` 在 npm 上从未发布（registry 404），
+> 属上游发布断裂；待其修复后再 bump。
 
 ## 作为 flake input 消费
 
