@@ -28,6 +28,7 @@
           zen-browser = final.callPackage ./pkgs/zen-browser { };
           dsh = final.callPackage ./pkgs/dsh { };
           opencode-v2 = final.callPackage ./pkgs/opencode-v2 { };
+          cc-switch = final.callPackage ./pkgs/cc-switch { };
           deepsec-tui = final.callPackage ./pkgs/deepsec-tui { };
           deepsec-lsp = final.callPackage ./pkgs/deepsec-lsp { };
           obsidian-mcp-server = final.callPackage ./pkgs/obsidian-mcp-server { };
@@ -44,6 +45,7 @@
           zen-browser = pkgs.callPackage ./pkgs/zen-browser { };
           dsh = pkgs.callPackage ./pkgs/dsh { };
           opencode-v2 = pkgs.callPackage ./pkgs/opencode-v2 { };
+          cc-switch = pkgs.callPackage ./pkgs/cc-switch { };
           deepsec-tui = pkgs.callPackage ./pkgs/deepsec-tui { };
           deepsec-lsp = pkgs.callPackage ./pkgs/deepsec-lsp { };
           obsidian-mcp-server = pkgs.callPackage ./pkgs/obsidian-mcp-server { };

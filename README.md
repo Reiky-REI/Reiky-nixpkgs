@@ -18,6 +18,8 @@ Reiky-nixpkgs/
 │   │   └── package-lock.json # 针对 0.1.1-rc.2 生成的依赖树（上游 tarball 不带 lock）
 │   ├── opencode-v2/
 │   │   └── default.nix       # OpenCode v2 CLI（npm 平台包预编译原生二进制）
+│   ├── cc-switch/
+│   │   └── default.nix       # CC Switch CLI（GitHub Release 预编译原生二进制）
 │   └── tolaria/
 │       └── default.nix       # Tolaria 桌面端 Markdown 知识库（官方 AppImage 密封运行时）
 └── README.md
@@ -30,12 +32,19 @@ Reiky-nixpkgs/
 | `zen-browser` | [Zen Browser](https://zen-browser.app/)，基于 Firefox 的隐私向浏览器 | nixpkgs（26.05 与 unstable）`browsers/` 目录均未收录；上游以通用 Linux tarball 分发 |
 | `dsh` | [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) CLI，终端 AI agent harness | nixpkgs 未收录（0.1.x 仍为 rc）；且此前以 `npm install` 装在家目录，属非声明式 |
 | `opencode-v2` | [OpenCode](https://opencode.ai) v2 CLI，AI 编码 agent | nixpkgs 仅收录 v1（1.18.x），尚无 v2 打包；上游 v2 以 npm 平台包分发预编译二进制 |
+| `cc-switch` | [CC Switch CLI](https://github.com/SaladDay/cc-switch-cli)，统一管理 Claude Code / Codex / Gemini / OpenCode 的 provider、MCP、代理与技能 | nixpkgs 未收录；上游以 GitHub Release 预编译二进制分发，且此前手装在 `~/.local/bin`，属非声明式 |
 | `tolaria` | [Tolaria](https://tolaria.md) 桌面端 Markdown 知识库管理应用 | nixpkgs 未收录；Tauri 2 应用，上游无 flake，官方仅以 AppImage/rpm/deb 分发 |
 
 > `opencode-v2` 打包注意：bun compile 的单文件二进制**不能** `autoPatchelfHook`/`strip`
 > （会破坏追加在 ELF 尾部的应用负载，二进制退化成裸 Bun，`--version` 打印 Bun 版本）。
 > 已设 `dontPatchELF`/`dontStrip`；另 v2 的 `serve` 强制密码鉴权，与 v1 无鉴权的
 > server API 契约不同。
+
+> `cc-switch` 取 GitHub Release 的 `linux-x64`（glibc）tar.gz，包内即单个 `cc-switch`
+> 可执行文件。同样 `dontPatchELF`/`dontStrip` 保持上游字节（动态链接由系统
+> `programs.nix-ld` 兜底）。收进私源后取代原先手装的 `~/.local/bin/cc-switch`，
+> 升级走 nix；二进制内置的 `cc-switch update` 在只读 store 下会失败，属预期。
+> `~/.cc-switch/` 配置与 `~/.local/state/cc-switch/` 状态目录不受影响。
 
 > `dsh` 固定 **0.1.1-rc.2**：更新版 `0.1.5-rc.2` 依赖的
 > `@deepseek-ai/dsh-experimental-code-runtime-python` 在 npm 上从未发布（registry 404），
