@@ -16,8 +16,10 @@ Reiky-nixpkgs/
 │   ├── dsh/
 │   │   ├── default.nix       # DeepSeek Harness CLI（npm tarball + 生成 lock）
 │   │   └── package-lock.json # 针对 0.1.1-rc.2 生成的依赖树（上游 tarball 不带 lock）
-│   └── opencode-v2/
-│       └── default.nix       # OpenCode v2 CLI（npm 平台包预编译原生二进制）
+│   ├── opencode-v2/
+│   │   └── default.nix       # OpenCode v2 CLI（npm 平台包预编译原生二进制）
+│   └── tolaria/
+│       └── default.nix       # Tolaria 桌面端 Markdown 知识库（官方 AppImage 密封运行时）
 └── README.md
 ```
 
@@ -28,6 +30,7 @@ Reiky-nixpkgs/
 | `zen-browser` | [Zen Browser](https://zen-browser.app/)，基于 Firefox 的隐私向浏览器 | nixpkgs（26.05 与 unstable）`browsers/` 目录均未收录；上游以通用 Linux tarball 分发 |
 | `dsh` | [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) CLI，终端 AI agent harness | nixpkgs 未收录（0.1.x 仍为 rc）；且此前以 `npm install` 装在家目录，属非声明式 |
 | `opencode-v2` | [OpenCode](https://opencode.ai) v2 CLI，AI 编码 agent | nixpkgs 仅收录 v1（1.18.x），尚无 v2 打包；上游 v2 以 npm 平台包分发预编译二进制 |
+| `tolaria` | [Tolaria](https://tolaria.md) 桌面端 Markdown 知识库管理应用 | nixpkgs 未收录；Tauri 2 应用，上游无 flake，官方仅以 AppImage/rpm/deb 分发 |
 
 > `opencode-v2` 打包注意：bun compile 的单文件二进制**不能** `autoPatchelfHook`/`strip`
 > （会破坏追加在 ELF 尾部的应用负载，二进制退化成裸 Bun，`--version` 打印 Bun 版本）。
@@ -37,6 +40,22 @@ Reiky-nixpkgs/
 > `dsh` 固定 **0.1.1-rc.2**：更新版 `0.1.5-rc.2` 依赖的
 > `@deepseek-ai/dsh-experimental-code-runtime-python` 在 npm 上从未发布（registry 404），
 > 属上游发布断裂；待其修复后再 bump。
+
+> `tolaria` 采用官方 AppImage + `appimageTools.wrapType2`（26.05 起底层为
+> `buildFHSEnv`/bubblewrap）打包。该 AppImage 由 `linuxdeploy-plugin-gtk` 生成密封
+> 运行时，**自带** webkit2gtk-4.1 / javascriptcoregtk-4.1 / libsoup-3.0 / gtk-3 等 168 支
+> `.so`，故 `extraPkgs` 只需补 FHS 默认集缺失、被 pango/glib 运行期 `dlopen` 的
+> `harfbuzz` / `fribidi` / `libgpg-error`。启动时 AppRun 会强制 `GDK_BACKEND=x11`，
+> 经 XWayland 运行（上游为规避 tauri#8541 的 Wayland 崩溃）。niri 实测 `app-id="Tolaria"`
+> （大写），故已把 `.desktop` 的 `StartupWMClass` 对齐为大写。应用内 Tauri updater 在
+> `/nix/store` 只读环境下不会成功，升级一律走 nix。
+
+### 如何更新 tolaria 版本
+
+1. 去 [releases](https://github.com/refactoringhq/tolaria/releases) 找稳定 tag（形如 `v2026-09-24`）。
+2. 改 `pkgs/tolaria/default.nix` 的 `version`（**产物文件名用点分** `2026.9.24`，tag 用连字符）。
+3. `hash` 临时置 `lib.fakeHash` 后跑 `nix build .#tolaria`，把报错里的新哈希回填。
+4. `nix build .#tolaria` 通过即完成。
 
 ## 作为 flake input 消费
 

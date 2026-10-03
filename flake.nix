@@ -28,6 +28,7 @@
           zen-browser = final.callPackage ./pkgs/zen-browser { };
           dsh = final.callPackage ./pkgs/dsh { };
           opencode-v2 = final.callPackage ./pkgs/opencode-v2 { };
+          tolaria = final.callPackage ./pkgs/tolaria { };
         };
 
       # 便于单包直接构建 / CI 冒烟测试: nix build .#zen-browser
@@ -40,6 +41,7 @@
           zen-browser = pkgs.callPackage ./pkgs/zen-browser { };
           dsh = pkgs.callPackage ./pkgs/dsh { };
           opencode-v2 = pkgs.callPackage ./pkgs/opencode-v2 { };
+          tolaria = pkgs.callPackage ./pkgs/tolaria { };
           default = pkgs.callPackage ./pkgs/zen-browser { };
         }
       );
