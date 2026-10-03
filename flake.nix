@@ -30,6 +30,7 @@
           opencode-v2 = final.callPackage ./pkgs/opencode-v2 { };
           deepsec-tui = final.callPackage ./pkgs/deepsec-tui { };
           deepsec-lsp = final.callPackage ./pkgs/deepsec-lsp { };
+          obsidian-mcp-server = final.callPackage ./pkgs/obsidian-mcp-server { };
           tolaria = final.callPackage ./pkgs/tolaria { };
         };
 
@@ -45,6 +46,7 @@
           opencode-v2 = pkgs.callPackage ./pkgs/opencode-v2 { };
           deepsec-tui = pkgs.callPackage ./pkgs/deepsec-tui { };
           deepsec-lsp = pkgs.callPackage ./pkgs/deepsec-lsp { };
+          obsidian-mcp-server = pkgs.callPackage ./pkgs/obsidian-mcp-server { };
           tolaria = pkgs.callPackage ./pkgs/tolaria { };
           default = pkgs.callPackage ./pkgs/zen-browser { };
         }
