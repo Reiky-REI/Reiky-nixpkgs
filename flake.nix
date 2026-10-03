@@ -28,6 +28,8 @@
           zen-browser = final.callPackage ./pkgs/zen-browser { };
           dsh = final.callPackage ./pkgs/dsh { };
           opencode-v2 = final.callPackage ./pkgs/opencode-v2 { };
+          deepsec-tui = final.callPackage ./pkgs/deepsec-tui { };
+          deepsec-lsp = final.callPackage ./pkgs/deepsec-lsp { };
           tolaria = final.callPackage ./pkgs/tolaria { };
         };
 
@@ -41,6 +43,8 @@
           zen-browser = pkgs.callPackage ./pkgs/zen-browser { };
           dsh = pkgs.callPackage ./pkgs/dsh { };
           opencode-v2 = pkgs.callPackage ./pkgs/opencode-v2 { };
+          deepsec-tui = pkgs.callPackage ./pkgs/deepsec-tui { };
+          deepsec-lsp = pkgs.callPackage ./pkgs/deepsec-lsp { };
           tolaria = pkgs.callPackage ./pkgs/tolaria { };
           default = pkgs.callPackage ./pkgs/zen-browser { };
         }
