@@ -5,14 +5,14 @@
 }:
 stdenv.mkDerivation {
   pname = "opencode";
-  version = "2.0.10";
+  version = "2.0.22";
 
   # 上游 v2 以 npm 平台包分发预编译原生二进制 (bun compile);
   # nixpkgs 目前只收录 v1 (1.18.x), 故本地打包。
   # 其他平台包名形如 @opencode/cli-{darwin,linux,windows}-{x64,arm64}。
   src = fetchurl {
-    url = "https://registry.npmjs.org/@opencode/cli-linux-x64/-/cli-linux-x64-2.0.10.tgz";
-    hash = "sha256-yjyE14yRAFlg758/fWDH37Sy21i5ewcA5OOUoDvY9C8=";
+    url = "https://registry.npmjs.org/@opencode/cli-linux-x64/-/cli-linux-x64-2.0.22.tgz";
+    hash = "sha256-ZUNMviVvI985eklBA55e7iixo3wbrVN2pSF/WDo1NYM=";
   };
 
   # bun compile 出来的单文件二进制把应用负载追加在 ELF 尾部;
